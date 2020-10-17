@@ -1,10 +1,12 @@
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 public class MainWindow {
 
 	protected Shell shell;
+	protected Display display;
 
 	/**
 	 * Launch the application.
@@ -23,7 +25,6 @@ public class MainWindow {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
 		createContents();
 		shell.open();
 		shell.layout();
@@ -38,11 +39,21 @@ public class MainWindow {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
-		shell = new Shell();
-		shell.setSize(900, 900);
+		display = new Display();
+		shell = new Shell(display);
+		shell.setSize(1200, 800);
 		shell.setText("Tag++ : A New way to manage your tag system");
 		shell.setLayout(null);
 
+		// set window in the center
+		Monitor primary = display.getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		Rectangle rect = shell.getBounds();
+		int x = bounds.x + (bounds.width - rect.width) / 2;
+		int y = bounds.y + (bounds.height - rect.height) / 2;
+		shell.setLocation(x, y);
+
+		
 	}
 
 }
