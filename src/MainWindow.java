@@ -19,6 +19,8 @@ public class MainWindow {
 	private Text textBox;
 	private Text query;
 	private Table table_1;
+	private Table table_2;
+	private Table table_3;
 
 	/**
 	 * Launch the application.
@@ -45,6 +47,35 @@ public class MainWindow {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
+		}
+	}
+
+	public void removeAndFillTable(Table table, Set<String> result) {
+		table.removeAll();
+		for (Control c : table.getChildren()) {
+			c.dispose();
+		}
+		for (String dir : result) {
+			Link link = new Link(table, SWT.NONE);
+			link.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					try {
+						Desktop.getDesktop().open(new File(dir));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			link.setText("<a>open file</a>");
+			link.pack();
+
+			TableItem tableItem = new TableItem(table, SWT.NONE);
+			tableItem.setText(dir);
+			TableEditor editor = new TableEditor(table);
+
+			editor.minimumWidth = link.getSize().x;
+			editor.horizontalAlignment = SWT.CENTER;
+			editor.setEditor(link, tableItem, 1);
 		}
 	}
 
@@ -195,10 +226,6 @@ public class MainWindow {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!query.getText().strip().equals("")) {
-					table_1.removeAll();
-					for (Control c : table_1.getChildren()) {
-						c.dispose();
-					}
 					String[] tags = query.getText().split(",");
 					Set<String> result = new HashSet<>();
 					result.addAll(TagManagement.get(tags[0].strip()));
@@ -208,28 +235,7 @@ public class MainWindow {
 						}
 						result.retainAll(TagManagement.get(tags[i].strip()));
 					}
-					for (String dir : result) {
-						Link link = new Link(table_1, SWT.NONE);
-						link.addSelectionListener(new SelectionAdapter() {
-							public void widgetSelected(SelectionEvent e) {
-								try {
-									Desktop.getDesktop().open(new File(dir));
-								} catch (IOException e1) {
-									e1.printStackTrace();
-								}
-							}
-						});
-						link.setText("<a>open file</a>");
-						link.pack();
-
-						TableItem tableItem = new TableItem(table_1, SWT.NONE);
-						tableItem.setText(dir);
-						TableEditor editor = new TableEditor(table_1);
-
-						editor.minimumWidth = link.getSize().x;
-						editor.horizontalAlignment = SWT.CENTER;
-						editor.setEditor(link, tableItem, 1);
-					}
+					removeAndFillTable(table_1, result);
 				}
 			}
 		});
@@ -249,6 +255,63 @@ public class MainWindow {
 		TableColumn tblclmnHyperlinkToFile = new TableColumn(table_1, SWT.NONE);
 		tblclmnHyperlinkToFile.setWidth(200);
 		tblclmnHyperlinkToFile.setText("Hyperlink to File");
+
+		TabItem tbtmAllTagsView = new TabItem(tabFolder, SWT.NONE);
+		tbtmAllTagsView.setText("All Tags View");
+
+		Composite composite_2 = new Composite(tabFolder, SWT.NONE);
+		tbtmAllTagsView.setControl(composite_2);
+
+		table_2 = new Table(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
+		table_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					String tag = table_2.getItem(table_2.getSelectionIndex()).getText(0);
+					removeAndFillTable(table_3, TagManagement.getMap().get(tag));
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		});
+		table_2.setBounds(35, 48, 316, 636);
+		table_2.setHeaderVisible(true);
+		table_2.setLinesVisible(true);
+
+		TableColumn tblclmnTagName = new TableColumn(table_2, SWT.NONE);
+		tblclmnTagName.setWidth(200);
+		tblclmnTagName.setText("Tag Name");
+
+		TableColumn tblclmnSize = new TableColumn(table_2, SWT.NONE);
+		tblclmnSize.setWidth(100);
+		tblclmnSize.setText("Size");
+
+		table_3 = new Table(composite_2, SWT.BORDER | SWT.FULL_SELECTION);
+		table_3.setBounds(437, 48, 696, 636);
+		table_3.setHeaderVisible(true);
+		table_3.setLinesVisible(true);
+		
+		TableColumn tblclmnFullFilePath_1 = new TableColumn(table_3, SWT.NONE);
+		tblclmnFullFilePath_1.setWidth(500);
+		tblclmnFullFilePath_1.setText("Full File Path");
+		
+		TableColumn tblclmnHyperLink = new TableColumn(table_3, SWT.NONE);
+		tblclmnHyperLink.setWidth(160);
+		tblclmnHyperLink.setText("Hyperlink to File");
+
+		Button btnLoadAllTags = new Button(composite_2, SWT.NONE);
+		btnLoadAllTags.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				table_2.removeAll();
+				for (String tag : TagManagement.getMap().keySet()) {
+					TableItem ti = new TableItem(table_2, SWT.NONE);
+					ti.setText(new String[] {tag, ""+TagManagement.getMap().get(tag).size()});
+				}
+			}
+		});
+		btnLoadAllTags.setBounds(35, 10, 131, 30);
+		btnLoadAllTags.setText("Load All Tags");
 
 	}
 }

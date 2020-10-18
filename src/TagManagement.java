@@ -206,6 +206,9 @@ public class TagManagement {
 //        }
 		if (tagMap.containsKey(tag)) {
 			tagMap.get(tag).remove(file.getAbsolutePath());
+			if(tagMap.get(tag).isEmpty()) {
+				tagMap.remove(tag);
+			}
 		}
 //        try {
 //            saveTags(file);
