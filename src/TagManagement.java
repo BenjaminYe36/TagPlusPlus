@@ -21,6 +21,7 @@ public class TagManagement {
 			try {
 				ois = new ObjectInputStream(new FileInputStream(MAP_PATH));
 				tagMap = (HashMap<String, Set<String>>) ois.readObject();
+				ois.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
@@ -50,6 +51,37 @@ public class TagManagement {
 		// https://stackoverflow.com/questions/7673424/how-to-dump-a-hashset-into-a-file-in-java
 		// similar to init() above
 
+		// Implemented by Haoyiwen Guo
+		
+//		if(file.exists()) {
+//            ObjectInputStream ois  = null;
+//            try {
+//                ois = new ObjectInputStream(new FileInputStream(file));
+//                tagSet = (Set<String>) ois.readObject();
+//            } catch (IOException | ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//        } else {
+//            tagSet = null;
+//        }
+//        return tagSet;
+
+		File fData = new File(file.getAbsolutePath() + DATA_SUFFIX);
+		if (fData.exists()) {
+			ObjectInputStream ois;
+			try {
+				ois = new ObjectInputStream(new FileInputStream(fData.getAbsolutePath()));
+				tagSet = (Set<String>) ois.readObject();
+				ois.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} else {
+			tagSet = new HashSet<>();
+		}
 		return tagSet;
 	}
 
@@ -67,7 +99,7 @@ public class TagManagement {
 		// stream
 		// related tutorial:
 		// https://stackoverflow.com/questions/7673424/how-to-dump-a-hashset-into-a-file-in-java
-		
+
 		// Implemented my Qiu Lin
 		File fData = new File(file.getAbsolutePath() + DATA_SUFFIX);
 
@@ -80,19 +112,8 @@ public class TagManagement {
 //				e.printStackTrace();
 //			}
 //		}
-
-		ObjectOutputStream oosSet = null;
-		try {
-			oosSet = new ObjectOutputStream(new FileOutputStream(fData.getAbsolutePath())); //change to fData
-			oosSet.writeObject(tagSet);
-			oosSet.flush();
-			oosSet.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		if (!fData.isHidden()) {
-			String sets = "attrib +H \"" + fData.getAbsolutePath() + "\"";
+		if (fData.isHidden()) {
+			String sets = "attrib -H \"" + fData.getAbsolutePath() + "\"";
 			try {
 				Runtime.getRuntime().exec(sets);
 			} catch (IOException e) {
@@ -100,11 +121,28 @@ public class TagManagement {
 			}
 		}
 
+		ObjectOutputStream oosSet = null;
+		try {
+			oosSet = new ObjectOutputStream(new FileOutputStream(fData.getAbsolutePath())); // change to fData
+			oosSet.writeObject(tagSet);
+//			oosSet.flush();
+			oosSet.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String sets = "attrib +H \"" + fData.getAbsolutePath() + "\"";
+		try {
+			Runtime.getRuntime().exec(sets);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		ObjectOutputStream oosMap = null;
 		try {
 			oosMap = new ObjectOutputStream(new FileOutputStream(MAP_PATH));
 			oosMap.writeObject(tagMap);
-			oosMap.flush();
+//			oosMap.flush();
 			oosMap.close();
 
 		} catch (IOException e) {
@@ -121,6 +159,20 @@ public class TagManagement {
 		// set
 		// 3.call saveTags(file) in the end
 
+		// Implemented by Haoyiwen Guo
+
+		tagSet.add(tag);
+
+		if (!tagMap.containsKey(tag)) {
+			tagMap.put(tag, new HashSet<>());
+		}
+		tagMap.get(tag).add(file.getAbsolutePath());
+
+//      HashSet<String> set = new HashSet<>();
+//      set.add(file.getAbsolutePath());
+//      tagMap.put(tag, set);
+
+		saveTags(file);
 	}
 
 	public static void remove(String tag, File file) {
