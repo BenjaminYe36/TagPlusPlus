@@ -1,2 +1,5 @@
 # TagPlusPlus
-A software that adds tags to files in win10 for quick queries to improve productivity and collaboration
+A software that adds tags to files in Windows 10 to improve productivity and collaboration by finding the related files the client asks for in a flash.
+
+# Reqirement
+Java Running Environment to run the .jar file
