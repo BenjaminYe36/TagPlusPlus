@@ -164,10 +164,14 @@ public class MainWindow {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (file != null) {
-					String tag = table.getItem(table.getSelectionIndex()).getText();
-					TagManagement.remove(tag, file);
-					table.remove(table.getSelectionIndex());
-					lblTagNum.setText("This file has " + TagManagement.getSet().size() + " tag(s)");
+					try {
+						String tag = table.getItem(table.getSelectionIndex()).getText();
+						TagManagement.remove(tag, file);
+						table.remove(table.getSelectionIndex());
+						lblTagNum.setText("This file has " + TagManagement.getSet().size() + " tag(s)");
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
 				}
 			}
 		});
