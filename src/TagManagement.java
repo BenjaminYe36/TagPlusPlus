@@ -52,7 +52,7 @@ public class TagManagement {
 		// similar to init() above
 
 		// Implemented by Haoyiwen Guo
-		
+
 //		if(file.exists()) {
 //            ObjectInputStream ois  = null;
 //            try {
@@ -113,10 +113,18 @@ public class TagManagement {
 //			}
 //		}
 		if (fData.isHidden()) {
-			String sets = "attrib -H \"" + fData.getAbsolutePath() + "\"";
+//			System.out.println("hidden");
+			String sets = "attrib -H " + fData.getAbsolutePath();
 			try {
 				Runtime.getRuntime().exec(sets);
 			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		while(fData.isHidden()) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}

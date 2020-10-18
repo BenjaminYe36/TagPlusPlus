@@ -9,7 +9,6 @@ import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 
 public class MainWindow {
 
@@ -101,15 +100,19 @@ public class MainWindow {
 					lblFilePath.setText("File Path: " + fileDialog.getFilterPath() + "\\" + fileDialog.getFileName());
 					lblFilePath.pack();
 					file = new File(fileDialog.getFilterPath() + "\\" + fileDialog.getFileName());
-//					Set<String> tagSet = TagManagement.loadTags(file);
-//					if (tagSet.isEmpty()) {
-//						lblTagNum.setText("No tags for this file yet");
-//					} else {
-//						lblTagNum.setText("This file has " + tagSet.size() + " tag(s)");
-//						for (String tag : tagSet) {
-//							new TableItem(table, SWT.NONE).setText(tag);
-//						}
-//					}
+					Set<String> tagSet = TagManagement.loadTags(file);
+					if (tagSet.isEmpty()) {
+						lblTagNum.setText("No tags for this file yet");
+					} else {
+						lblTagNum.setText("This file has " + tagSet.size() + " tag(s)");
+						for (String tag : tagSet) {
+							new TableItem(table, SWT.NONE).setText(tag);
+						}
+					}
+				} else {
+					lblFilePath.setText("File Path:");
+					lblTagNum.setText("");
+					file = null;
 				}
 			}
 		});
@@ -147,8 +150,9 @@ public class MainWindow {
 							new TableItem(table, SWT.NONE).setText(tag);
 						}
 					}
+					textBox.setText("");
+					lblTagNum.setText("This file has " + TagManagement.getSet().size() + " tag(s)");
 				}
-				textBox.setText("");
 			}
 		});
 		btnAdd.setFont(SWTResourceManager.getFont("Microsoft YaHei UI", 15, SWT.NORMAL));
@@ -163,6 +167,7 @@ public class MainWindow {
 					String tag = table.getItem(table.getSelectionIndex()).getText();
 					TagManagement.remove(tag, file);
 					table.remove(table.getSelectionIndex());
+					lblTagNum.setText("This file has " + TagManagement.getSet().size() + " tag(s)");
 				}
 			}
 		});
@@ -186,17 +191,21 @@ public class MainWindow {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!query.getText().strip().equals("")) {
+					table_1.removeAll();
+					for (Control c : table_1.getChildren()) {
+						c.dispose();
+					}
 					String[] tags = query.getText().split(",");
 					Set<String> result = new HashSet<>();
-					result.addAll(TagManagement.get(tags[0]));
+					result.addAll(TagManagement.get(tags[0].strip()));
 					for (int i = 1; i < tags.length; i++) {
 						if (result.isEmpty()) {
 							break;
 						}
-						result.retainAll(TagManagement.get(tags[i]));
+						result.retainAll(TagManagement.get(tags[i].strip()));
 					}
 					for (String dir : result) {
-						Link link = new Link(table, SWT.NONE);
+						Link link = new Link(table_1, SWT.NONE);
 						link.addSelectionListener(new SelectionAdapter() {
 							public void widgetSelected(SelectionEvent e) {
 								try {
@@ -209,9 +218,9 @@ public class MainWindow {
 						link.setText("<a>open file</a>");
 						link.pack();
 
-						TableItem tableItem = new TableItem(table, SWT.NONE);
+						TableItem tableItem = new TableItem(table_1, SWT.NONE);
 						tableItem.setText(dir);
-						TableEditor editor = new TableEditor(table);
+						TableEditor editor = new TableEditor(table_1);
 
 						editor.minimumWidth = link.getSize().x;
 						editor.horizontalAlignment = SWT.CENTER;
@@ -228,11 +237,11 @@ public class MainWindow {
 		table_1.setBounds(44, 105, 1091, 538);
 		table_1.setHeaderVisible(true);
 		table_1.setLinesVisible(true);
-		
+
 		TableColumn tblclmnFullFilePath = new TableColumn(table_1, SWT.NONE);
 		tblclmnFullFilePath.setWidth(800);
 		tblclmnFullFilePath.setText("Full File Path");
-		
+
 		TableColumn tblclmnHyperlinkToFile = new TableColumn(table_1, SWT.NONE);
 		tblclmnHyperlinkToFile.setWidth(200);
 		tblclmnHyperlinkToFile.setText("Hyperlink to File");
