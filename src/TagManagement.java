@@ -34,6 +34,10 @@ public class TagManagement {
 	public static Map<String, Set<String>> getMap() {
 		return tagMap;
 	}
+	
+	public static Set<String> getSet() {
+		return tagSet;
+	}
 
 	public static Set<String> loadTags(File file) {
 		// ! ! ! the file name for data files should add the suffix DATA_SUFFIX ! ! !
